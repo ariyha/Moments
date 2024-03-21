@@ -13,7 +13,7 @@ class home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final x = <Widget>[];
-    for (int i = 0; i <= 30; i++) {
+    for (int i = 0; i <= 100; i++) {
       x.add(record());
     }
     return Scaffold(
