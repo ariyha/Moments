@@ -62,13 +62,25 @@ class record extends StatelessWidget {
                   flex: 7,
                   fit: FlexFit.tight,
                   child: Card(
-                    child: Text("text"),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.all(5.0),
+                        child: Text(
+                          "text",
+                          style: TextStyle(
+                            fontFamily: 'Roboto',
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
                   )),
               Flexible(
                   flex: 3,
                   fit: FlexFit.tight,
                   child: Card(
-                    child: Text("Date"),
+                    child: Center(child: Text("Date")),
                   ))
             ],
           ),
