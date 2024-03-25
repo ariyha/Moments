@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 void main() {
   runApp(MaterialApp(
       title: "Diary",
-      home: home(),
+      home: const Home(),
       theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(
@@ -15,14 +15,14 @@ void main() {
           ))));
 }
 
-class home extends StatelessWidget {
-  const home({Key? key}) : super(key: key);
+class Home extends StatelessWidget {
+  const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final x = <Widget>[QuoteWidget()];
+    final x = <Widget>[const QuoteWidget()];
     for (int i = 0; i <= 30; i++) {
-      x.add(record());
+      x.add(const Record());
     }
 
     return Scaffold(
@@ -44,15 +44,17 @@ class home extends StatelessWidget {
         ),
         body: ListView(children: x),
         floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.add),
+            child: const Icon(Icons.add),
             onPressed: () {
-              final bar = SnackBar(content: Text("Fuck this shitttt"));
+              const bar = SnackBar(content: Text("Fuck this shitttt"));
               ScaffoldMessenger.of(context).showSnackBar(bar);
             }));
   }
 }
 
 class QuoteWidget extends StatelessWidget {
+  const QuoteWidget({super.key});
+
   Future<String> getquote() async {
     final httppack =
         Uri.parse('https://api.quotable.io/quotes/random?&maxLength=40');
@@ -66,7 +68,7 @@ class QuoteWidget extends StatelessWidget {
         final String quoteContent = quoteData["content"];
         return quoteContent;
       } else {
-        return "Well be calm and complete your shit";
+        return "Be calm and complete your shit";
       }
     }
   }
@@ -78,10 +80,10 @@ class QuoteWidget extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // While the future is not yet complete, show a loading indicator
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           // If an error occurs, display the error message
-          return Text("Error: ${snapshot.error}");
+          return _buildQuoteCard("Be calm and complete your shit", context);
         } else {
           // Once the future is complete, display the fetched quote
           return _buildQuoteCard(
@@ -97,18 +99,19 @@ class QuoteWidget extends StatelessWidget {
       width: size.width,
       height: size.height * 0.05,
       child: Card(
-        child: Text(
-          quote,
-          style: GoogleFonts.eduNswActFoundation(fontSize: 20),
-          textAlign: TextAlign.center,
+        child: Align(
+          child: Text(
+            quote,
+            style: GoogleFonts.eduNswActFoundation(fontSize: 25),
+          ),
         ),
       ),
     );
   }
 }
 
-class record extends StatelessWidget {
-  const record({Key? key}) : super(key: key);
+class Record extends StatelessWidget {
+  const Record({super.key});
 
   @override
   Widget build(BuildContext context) {
