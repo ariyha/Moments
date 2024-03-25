@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(MaterialApp(
-    title: "Diary",
-    home: home(),
-  ));
+      title: "Diary",
+      home: home(),
+      theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.green,
+            brightness: Brightness.dark,
+          ))));
 }
 
 class home extends StatelessWidget {
@@ -12,16 +20,16 @@ class home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final x = <Widget>[];
+    final x = <Widget>[QuoteWidget()];
     for (int i = 0; i <= 30; i++) {
       x.add(record());
     }
+
     return Scaffold(
-        backgroundColor: ColorScheme.dark().background,
         appBar: AppBar(
-          backgroundColor: ColorScheme.dark().primaryContainer,
-          title: const Text(
+          title: Text(
             "Diary",
+            style: GoogleFonts.pacifico(),
           ),
           centerTitle: true,
           actions: [
@@ -41,6 +49,61 @@ class home extends StatelessWidget {
               final bar = SnackBar(content: Text("Fuck this shitttt"));
               ScaffoldMessenger.of(context).showSnackBar(bar);
             }));
+  }
+}
+
+class QuoteWidget extends StatelessWidget {
+  Future<String> getquote() async {
+    final httppack =
+        Uri.parse('https://api.quotable.io/quotes/random?&maxLength=40');
+    final response = await http.get(httppack);
+    if (response.statusCode != 200) {
+      return "Well be calm and complete your shit";
+    } else {
+      final List<dynamic> responseData = jsonDecode(response.body);
+      if (responseData.isNotEmpty) {
+        final Map<String, dynamic> quoteData = responseData.first;
+        final String quoteContent = quoteData["content"];
+        return quoteContent;
+      } else {
+        return "Well be calm and complete your shit";
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String>(
+      future: getquote(),
+      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // While the future is not yet complete, show a loading indicator
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          // If an error occurs, display the error message
+          return Text("Error: ${snapshot.error}");
+        } else {
+          // Once the future is complete, display the fetched quote
+          return _buildQuoteCard(
+              snapshot.data ?? "No quote available", context);
+        }
+      },
+    );
+  }
+
+  Widget _buildQuoteCard(String quote, BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return SizedBox(
+      width: size.width,
+      height: size.height * 0.05,
+      child: Card(
+        child: Text(
+          quote,
+          style: GoogleFonts.eduNswActFoundation(fontSize: 20),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
   }
 }
 
