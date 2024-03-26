@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:myapp/NewEntry.dart';
 
-void main() {
-  runApp(MaterialApp(
-      title: "Diary",
-      home: const Home(),
-      theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.green,
-            brightness: Brightness.dark,
-          ))));
+void main() async {
+  runApp(
+    MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: "Diary",
+        home: const Home(),
+        theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.green,
+              brightness: Brightness.dark,
+            ))),
+  );
 }
 
 class Home extends StatelessWidget {
