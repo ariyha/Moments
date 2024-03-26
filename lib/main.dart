@@ -10,7 +10,7 @@ void main() async {
     MaterialApp(
         debugShowCheckedModeBanner: false,
         title: "Diary",
-        home: const Home(),
+        home: const EntryPage(),
         theme: ThemeData(
             useMaterial3: true,
             colorScheme: ColorScheme.fromSeed(
