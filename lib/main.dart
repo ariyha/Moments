@@ -48,9 +48,28 @@ class Home extends StatelessWidget {
         floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.add),
             onPressed: () {
-              const bar = SnackBar(content: Text("Fuck this shitttt"));
-              ScaffoldMessenger.of(context).showSnackBar(bar);
+              Navigator.of(context).push(_createMoment());
             }));
+  }
+
+  Route _createMoment() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => NewMomentPage(
+        title: '',
+      ),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 1.0);
+        const end = Offset.zero;
+        const curve = Curves.ease;
+        final tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        final offsetAnimation = animation.drive(tween);
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
   }
 }
 
@@ -135,7 +154,6 @@ class _MomentsListState extends State<MomentsList> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Expanded(
       child: Stack(
         children: [
@@ -146,16 +164,12 @@ class _MomentsListState extends State<MomentsList> {
               return InkWell(
                   splashColor: ThemeData.dark().splashColor,
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                NewMomentPage(title: items[index])));
+                    Navigator.of(context).push(_createRoute(items[index]));
                   },
                   onLongPress: () {
                     setState(() {
-                      currindex = index;
-                      visiblity = true;
+                      showDialog(
+                          context: context, builder: (_) => DeletePopUp());
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('This is a snackbar')));
@@ -163,74 +177,87 @@ class _MomentsListState extends State<MomentsList> {
                   child: Record(text: item));
             },
           ),
-          Visibility(
-              visible: visiblity,
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    visiblity = false;
-                  });
-                },
-                child: Container(
-                  decoration:
-                      const BoxDecoration(color: Color.fromARGB(211, 0, 0, 0)),
-                  child: Align(
-                    child: SizedBox(
-                      width: size.width * 0.8,
-                      height: size.height * 0.25,
-                      child: Card.filled(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Icon(Icons.info_outline_rounded),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                  "Do you want to delete this moment?",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 25),
-                                ),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: OutlinedButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            visiblity = false;
-                                          });
-                                        },
-                                        child: const Text("Cancel")),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: FilledButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            visiblity = false;
-                                            items.removeAt(currindex);
-                                          });
-                                        },
-                                        child: const Text("Delete")),
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ))
         ],
       ),
+    );
+  }
+
+  Route _createRoute(String title) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => NewMomentPage(
+        title: title,
+      ),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.ease;
+        final tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        final offsetAnimation = animation.drive(tween);
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+}
+
+class DeletePopUp extends StatefulWidget {
+  const DeletePopUp({super.key});
+
+  @override
+  State<DeletePopUp> createState() => _DeletePopUpState();
+}
+
+class _DeletePopUpState extends State<DeletePopUp>
+    with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+  late Animation<double> scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 450));
+    scaleAnimation = CurvedAnimation(parent: controller, curve: Curves.ease);
+
+    controller.addListener(() {
+      setState(() {});
+    });
+
+    controller.forward();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return ScaleTransition(
+      scale: scaleAnimation,
+      child: AlertDialog(
+          title: const Text('Delete'),
+          content: const Text("Do you want to delete this Moment?"),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('Delete'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ]),
     );
   }
 }
