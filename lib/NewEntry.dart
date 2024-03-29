@@ -1,39 +1,38 @@
-import 'package:flutter/cupertino.dart';
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:intl/intl.dart'; //this is an external package for formatting date and time
+import 'package:intl/intl.dart';
 
 class NewMomentPage extends StatelessWidget {
-  const NewMomentPage({super.key});
+  var title = 'Default';
+  NewMomentPage({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const DatePicker(),
-          centerTitle: true,
+      appBar: AppBar(
+        title: const DatePicker(),
+        centerTitle: true,
+      ),
+      //body: ListView(children: x),
+      body: Padding(
+        padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+        child: EntryPage(
+          title: title,
         ),
-        //body: ListView(children: x),
-        body: Padding(
-          padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-          child: const EntryPage(),
-        ),
-        floatingActionButton: FloatingActionButton(
-            child: const Text("Done"),
-            onPressed: () {
-              const bar = SnackBar(content: Text("Fuck this shitttt"));
-              ScaffoldMessenger.of(context).showSnackBar(bar);
-            }));
+      ),
+    );
   }
 }
 
 class EntryPage extends StatelessWidget {
-  const EntryPage({super.key});
+  String title;
+  EntryPage({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: [DetailsBar(), MomentContent()],
+    return Column(
+      children: [DetailsBar(title: title), const MomentContent()],
     );
   }
 }
@@ -79,19 +78,29 @@ class _DatePickerState extends State<DatePicker> {
   }
 }
 
-class DetailsBar extends StatelessWidget {
-  const DetailsBar({super.key});
+class DetailsBar extends StatefulWidget {
+  String title;
+  DetailsBar({super.key, required this.title});
+
+  @override
+  State<DetailsBar> createState() => _DetailsBarState();
+}
+
+class _DetailsBarState extends State<DetailsBar> {
+  var titlecontroller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    titlecontroller.text = widget.title;
     Size size = MediaQuery.of(context).size;
     return SizedBox(
       width: size.width,
       height: size.height * 0.1,
-      child: const TextField(
+      child: TextField(
+        controller: titlecontroller,
         maxLines: 1,
-        style: TextStyle(fontSize: 32),
-        decoration: InputDecoration(
+        style: const TextStyle(fontSize: 32),
+        decoration: const InputDecoration(
             border: UnderlineInputBorder(),
             hintText: "Title",
             hintStyle: TextStyle(fontSize: 32)),
