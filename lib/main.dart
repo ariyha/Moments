@@ -1,5 +1,5 @@
+// ignore_for_file: must_be_immutable
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,7 +14,7 @@ void main() async {
         theme: ThemeData(
             useMaterial3: true,
             colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.green,
+              seedColor: Colors.brown,
               brightness: Brightness.dark,
             ))),
   );
@@ -25,11 +25,6 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final x = <Widget>[const QuoteWidget()];
-    for (int i = 0; i <= 30; i++) {
-      x.add(const Record());
-    }
-
     return Scaffold(
         appBar: AppBar(
           title: Text(
@@ -47,7 +42,9 @@ class Home extends StatelessWidget {
             )
           ],
         ),
-        body: ListView(children: x),
+        body: const Column(
+          children: [QuoteWidget(), MomentsList()],
+        ),
         floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.add),
             onPressed: () {
@@ -115,9 +112,138 @@ class QuoteWidget extends StatelessWidget {
   }
 }
 
-class Record extends StatelessWidget {
-  const Record({super.key});
+class MomentsList extends StatefulWidget {
+  const MomentsList({super.key});
 
+  @override
+  State<MomentsList> createState() => _MomentsListState();
+}
+
+List getdata() {
+  var x = [];
+  for (int i = 0; i <= 30; i++) {
+    var s = i.toString();
+    x.add(s);
+  }
+  return x;
+}
+
+class _MomentsListState extends State<MomentsList> {
+  final items = getdata();
+  var visiblity = false;
+  int currindex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    return Expanded(
+      child: Stack(
+        children: [
+          ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return InkWell(
+                  splashColor: ThemeData.dark().splashColor,
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                NewMomentPage(title: items[index])));
+                  },
+                  onLongPress: () {
+                    setState(() {
+                      currindex = index;
+                      visiblity = true;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('This is a snackbar')));
+                  },
+                  child: Record(text: item));
+            },
+          ),
+          Visibility(
+              visible: visiblity,
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    visiblity = false;
+                  });
+                },
+                child: Container(
+                  decoration:
+                      const BoxDecoration(color: Color.fromARGB(211, 0, 0, 0)),
+                  child: Align(
+                    child: SizedBox(
+                      width: size.width * 0.8,
+                      height: size.height * 0.25,
+                      child: Card.filled(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Icon(Icons.info_outline_rounded),
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                  "Do you want to delete this moment?",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 25),
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: OutlinedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            visiblity = false;
+                                          });
+                                        },
+                                        child: const Text("Cancel")),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: FilledButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            visiblity = false;
+                                            items.removeAt(currindex);
+                                          });
+                                        },
+                                        child: const Text("Delete")),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ))
+        ],
+      ),
+    );
+  }
+}
+
+class Record extends StatefulWidget {
+  String text;
+  Record({required this.text, super.key});
+
+  @override
+  State<Record> createState() => _RecordState();
+}
+
+class _RecordState extends State<Record> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -125,21 +251,21 @@ class Record extends StatelessWidget {
     return SizedBox(
         height: size.height * 0.1,
         width: size.width,
-        child: const Card(
+        child: Card(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Flexible(
                   flex: 7,
                   fit: FlexFit.tight,
-                  child: Card(
+                  child: GestureDetector(
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: EdgeInsets.all(5.0),
+                        padding: const EdgeInsets.all(5.0),
                         child: Text(
-                          "text",
-                          style: TextStyle(
+                          widget.text,
+                          style: const TextStyle(
                             fontFamily: 'Roboto',
                             fontSize: 20,
                           ),
@@ -147,12 +273,10 @@ class Record extends StatelessWidget {
                       ),
                     ),
                   )),
-              Flexible(
+              const Flexible(
                   flex: 3,
                   fit: FlexFit.tight,
-                  child: Card(
-                    child: Center(child: Text("Date")),
-                  ))
+                  child: Center(child: Text("Date")))
             ],
           ),
         ));
